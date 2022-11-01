@@ -2,7 +2,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <sys/wait.h>
 #include <stdarg.h>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -18,10 +17,10 @@ int main(int argc, char** argv)
     if((p = fork()) == 0)
     {
         close(fd[0]);
-        dup2(fd[1], 1);
+        dup2(fd[1], fd_wr);
+        execlp(argv[1], argv[1], argv[2], NULL);
         close(fd[1]);
         close(fd_wr);
-        execlp(argv[1], argv[1], argv[2], NULL);
         exit(1);
     }
     else
@@ -32,10 +31,10 @@ int main(int argc, char** argv)
     if((p = fork()) == 0)
     {
         close(fd[0]);
-        dup2(fd[1], 1);
+        dup2(fd[1], fd_wr);
+        execlp(argv[3], argv[3], argv[4], NULL);
         close(fd[1]);
         close(fd_wr);
-        execlp(argv[3], argv[3], argv[4], NULL);
         exit(1);
     }
     else

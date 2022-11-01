@@ -1,12 +1,6 @@
-#define _GNU_SOURCE
 #include <stdio.h>
-#include <stdlib.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <string.h>
-#include <sys/types.h>
-#include <time.h>
+#include <stdlib.h>
 
 void change_words(FILE* inp)
 {
@@ -184,121 +178,11 @@ void change_words(FILE* inp)
     free(other);
     free(last);
 }
-
-void go_to_dir(char* dir_path, int deap)
+  
+int main()
 {
-    struct dirent* check;
-    DIR* dir_rec;
-    DIR* input = opendir(dir_path);
-    char** dirs_arr;
-    int size = 0;
-    check = readdir(input);
-    check = readdir(input);
-    while(check = readdir(input))
-    {
-        char* adding = malloc(sizeof(dir_path)+sizeof(check->d_name) + 1);
-        strcpy(adding, dir_path);
-        strcat(adding, "/");
-        strcat(adding, check->d_name);
-        if((dir_rec = opendir(adding)) != NULL)
-        {
-            struct stat *st = malloc(sizeof(struct stat));
-            stat(adding, st);
-            time_t opening = st->st_atime;
-            printf("%*c", deap + 1, ' '); //надо еще вывести время создания
-            printf("dir: %s %s", adding, ctime(&opening));
-            go_to_dir(adding, deap + 4);
-            closedir(dir_rec);
-            free(st);
-        }
-        else
-        {
-            struct stat *st = malloc(sizeof(struct stat));
-            stat(adding, st);
-            if((*st).st_mode & S_IXUSR)
-            {
-                printf("%*c", deap + 1, ' ');
-                printf("%s\n", check->d_name);
-                FILE* ch = fopen(adding, "r+");
-                change_words(ch);
-                fclose(ch);
-            }
-            free(st);
-        }
-        free(adding);
-    }
-    closedir(input);
-}
-
-int main (int argc, char** argv)
-{
-    if(argc!=2)
-    {
-        printf("error");
-        return 1;
-    }
-    DIR* dp;
-    if ((dp = opendir(argv[1])) == NULL)
-    {
-        printf("not cat");
-    }
-
-    struct dirent* rec;
-
-    struct stat file_stat, file_stat_2;
-    long long reg_size = 0;
-    while(rec = readdir(dp))
-    {
-        lstat(rec->d_name, &file_stat);
-        stat(rec->d_name, &file_stat_2);
-        char* name = rec->d_name;
-        if(S_ISLNK(file_stat.st_mode))
-        {
-            char name[260];
-            for (int i = 0; rec->d_name[i] != '\0'; i++)
-            {
-                name[i] = rec->d_name[i];
-                if(rec->d_name[i+1] == '\0')
-                {
-                    name[i+1] = '\0';
-                }
-            }
-            DIR* back = dp;
-            struct stat file_stat_check;
-            rewinddir(back);
-            struct dirent* ch;
-            int pass = 0;
-            while(ch = readdir(back))
-            {
-                stat(ch->d_name, &file_stat_check);
-                if(file_stat.st_ino == file_stat_check.st_ino)
-                {
-                    pass++;
-                }
-            }
-            if(pass == 0)
-            {
-                printf("unknow-file: %s ", name);
-            }
-            rewinddir(back);
-            ch = readdir(back);
-            while (ch->d_name != rec->d_name)
-            {
-                ch = readdir(back);
-            }
-        }
-        else
-        {
-            reg_size += file_stat.st_size;
-        }
-    }
-    printf("\n size of all files: %llu", reg_size);
-    closedir(dp);
-    struct stat *st = malloc(sizeof(struct stat));
-    stat(argv[1], st);
-    time_t opening = st->st_atime;
-    printf("%s", argv[1], ctime(&opening));
-    free(st);
-    go_to_dir(argv[1], 1);
+    FILE* inp;
+    inp = fopen("input.txt", "r+");
+    change_words(inp);
     return 0;
 }
