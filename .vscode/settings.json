@@ -30,6 +30,7 @@
   ],
   "files.associations": {
     "typeinfo": "c",
-    "fcntl.h": "c"
+    "fcntl.h": "c",
+    "types.h": "c"
   }
 }

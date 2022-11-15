@@ -219,9 +219,6 @@ void go_to_dir(char* dir_path, int deap)
             {
                 printf("%*c", deap + 1, ' ');
                 printf("%s\n", check->d_name);
-                FILE* ch = fopen(adding, "r+");
-                change_words(ch);
-                fclose(ch);
             }
             free(st);
         }
@@ -240,17 +237,27 @@ int main (int argc, char** argv)
     DIR* dp;
     if ((dp = opendir(argv[1])) == NULL)
     {
-        printf("not cat");
+        FILE* inp = fopen(argv[1], "r+");
+        change_words(inp);
+        fclose(inp);
+        return 0;
     }
 
     struct dirent* rec;
 
     struct stat file_stat, file_stat_2;
     long long reg_size = 0;
+    rec = readdir(dp);
+    rec = readdir(dp);
     while(rec = readdir(dp))
     {
-        lstat(rec->d_name, &file_stat);
-        stat(rec->d_name, &file_stat_2);
+        char *fullname = malloc(sizeof(argv[1]) + 1 + sizeof(rec->d_name));
+        strcpy(fullname, argv[1]);
+        strcat(fullname, "/");
+        strcat(fullname, rec->d_name);
+        lstat(fullname, &file_stat);
+        stat(fullname, &file_stat_2);
+        free(fullname);
         char* name = rec->d_name;
         if(S_ISLNK(file_stat.st_mode))
         {
@@ -268,17 +275,32 @@ int main (int argc, char** argv)
             rewinddir(back);
             struct dirent* ch;
             int pass = 0;
+            ch = readdir(back);
+            ch = readdir(back);
             while(ch = readdir(back))
             {
-                stat(ch->d_name, &file_stat_check);
-                if(file_stat.st_ino == file_stat_check.st_ino)
+                char *name_ch;
+                char *fullname_file = malloc(sizeof(argv[1]) + 1 + sizeof(ch->d_name));
+                strcpy(fullname_file, argv[1]);
+                strcat(fullname_file, "/");
+                strcat(fullname_file, ch->d_name);
+                name_ch = malloc(sizeof(ch->d_name));
+                strcpy(name_ch, ch->d_name);
+                stat(fullname_file, &file_stat_check);
+                if(file_stat_2.st_ino == file_stat_check.st_ino && strcmp(name, name_ch))
                 {
                     pass++;
+                    printf("link: %s, go to: %s\n", name, name_ch);
+                    free(fullname_file);
+                    free(name_ch);
+                    break;
                 }
+                free(fullname_file);
+                free(name_ch);
             }
             if(pass == 0)
             {
-                printf("unknow-file: %s ", name);
+                printf("unknow-file: %s \n", name);
             }
             rewinddir(back);
             ch = readdir(back);
