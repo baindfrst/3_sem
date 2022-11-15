@@ -5,43 +5,37 @@
 #include <stdarg.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 
 int main(int argc, char** argv)
 {
     pid_t p;
     int fd[2];
-    pipe(fd);
     int fd_wr = open(argv[5], O_WRONLY|O_CREAT, S_IRUSR|S_IWUSR);
     int status;
-    dup2(fd_wr, fd[1]);
     if((p = fork()) == 0)
     {
-        close(fd[0]);
-        dup2(fd[1], fd_wr);
+        dup2(fd_wr, 1);
+        close(fd_wr);
         execlp(argv[1], argv[1], argv[2], NULL);
-        close(fd[1]);
-        close(fd_wr);
-        exit(1);
+        exit(0);
     }
     else
     {
-        exit(0);
+        perror("fork");
     }
     wait(&status);
     if((p = fork()) == 0)
     {
-        close(fd[0]);
-        dup2(fd[1], fd_wr);
-        execlp(argv[3], argv[3], argv[4], NULL);
-        close(fd[1]);
+        dup2(fd_wr, 1);
         close(fd_wr);
-        exit(1);
+        execlp(argv[3], argv[3], argv[4], NULL);
+        exit(0);
     }
     else
     {
-        exit(0);
+        perror("fork");
     }
     wait(&status);
-    close(fd_wr);
     return 0;
 }

@@ -29,7 +29,9 @@
     "**/.vscode/**"
   ],
   "files.associations": {
+    "iostream": "cpp",
     "typeinfo": "c",
-    "fcntl.h": "c"
+    "fcntl.h": "c",
+    "stdarg.h": "c"
   }
 }
