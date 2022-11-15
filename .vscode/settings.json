@@ -32,6 +32,6 @@
     "iostream": "cpp",
     "typeinfo": "c",
     "fcntl.h": "c",
-    "stdarg.h": "c"
+    "types.h": "c"
   }
 }
