@@ -8,23 +8,25 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <signal.h>
+#define MAXLEN 40 // не совсем понял, что за MAXLEN
 pid_t pid;
 int file;
 void printfather(int sig)
 {
-    puts("Father\n");
+    puts("Father");
     raise(SIGUSR2);
 }
 void filefather(int sig)
 {
     char readed;
-    int ch = read(file, &readed, 1);
-    while(ch > 0 && readed != ' ')
+    int ch;
+    int len = 0;
+    while((ch = read(file, &readed, 1)) > 0 && readed != '\n' && len != MAXLEN)
     {
         putchar(readed);
-        ch = read(file, &readed, 1);
+        len++;
     }
-    if(ch = 0)
+    if(ch == 0)
     {
         raise(SIGINT);
     }
@@ -38,13 +40,14 @@ void fatheralarm(int sig)
 void fileson(int sig)
 {
     char readed;
-    int ch = read(file, &readed, 1);
-    while(ch > 0 && readed != ' ')
+    int ch;
+    int len = 0;
+    while((ch = read(file, &readed, 1)) > 0 && readed != '\n' && len != MAXLEN)
     {
         putchar(readed);
-        ch = read(file, &readed, 1);
+        len++;
     }
-    if(ch = 0)
+    if(ch == 0)
     {
         raise(SIGINT);
     }
@@ -54,7 +57,7 @@ void fileson(int sig)
 
 void printson(int sig)
 {
-    puts("Son\n");
+    puts("Son");
     raise(SIGUSR2);
 }
 
@@ -63,12 +66,17 @@ void sonalarm(int sig)
     exit(1);
 }
 
-int main()
+int main(int argc, char** argv)
 {
     char c = 'p';
+    if (argc != 2)
+    {
+        printf("error arg\n");
+        exit(1);
+    }
     time_t start_time;
+    file = open(argv[1], O_RDONLY|O_CREAT);
     pid = fork();
-    file = open("input.txt", O_RDONLY|O_CREAT);
     if(pid > 0)
     {
         signal(SIGUSR1, printfather);

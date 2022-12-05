@@ -12,13 +12,11 @@ int main(int argc, char** argv)
 {
     if (argc != 2)
     {
-        printf("error input\n");
         exit(2);
     }
     int file_to_print = open(argv[1], O_WRONLY | O_CREAT, 0777);
     if(file_to_print < 0)
     {
-        printf("file error\n");
         exit(2);
     }
     pid_t pid;
@@ -28,15 +26,12 @@ int main(int argc, char** argv)
     pipe(fd_out);
     char prt = 's';
     char n = '\n';
-    int count = 0;
-    scanf("%c", &sumbol);
-    gets(string);
-    char string[80];
+    char string[81] = " ";
     char sumbol;
     pid = fork();
-    while(strcmp(string, "exit") != 0)
+    char ex[] = "exit ";
+    while(strcmp(string, ex) != 0)
     {
-        write(fd_out[1], &prt, 1);
         if(pid == -1)
         {
             perror("fork");
@@ -44,31 +39,65 @@ int main(int argc, char** argv)
         }
         if(pid == 0)
         {
+            write(fd_out[1], &prt, 1);
             read(fd_in[0], &prt, 1);
-            for(int i = 0; i != strlen(string); i++)
+            read(fd_in[0], &sumbol, 1);
+            int len = 0;
+            read(fd_in[0], &len, 1);
+            read(fd_in[0], string, len);
+            if(strcmp(string, "exit") == 0)
+            {
+                exit(1);
+            }
+            int count = 0;
+            char *out;
+            for(int i = 0; i != len; i++)
             {
                 if (string[i] == sumbol)
                 {
                     count++;
                 }
             }
-            write(file_to_print, &count, 1);
+            if (count > 9)
+            {
+                out = malloc(sizeof(char) * 3);
+                out[0] = count / 10 + '0';
+                out[1] = count % 10 + '0';
+                out[2] = '\0';
+            }
+            else
+            {
+                out = malloc(sizeof(char) * 2);
+                out[0] = count + '0';
+                out[1] = '\0';
+            }
+            write(file_to_print, out, sizeof(char) * strlen(out));
+            free(out);
             write(file_to_print, &n, sizeof(char));
-            write(fd_out[1], &prt, 1);
         }
         else
         {
             read(fd_out[0], &prt, 1);
             read(1, &sumbol, 1);
+            read(1, &prt, 1);
             char readed;
             int i = 0;
             while(read(1, &readed, 1) > 0 && readed != ' ' && readed != '\n')
             {
                 string[i++] = readed;
             }
-            readed[i++] = '\0';
-            write(file_to_print, string, strlen(string) + 1);
+            string[i++] = ' ';
+            string[i] = '\0';
+            if(strcmp(string, ex) == 0)
+            {
+                exit(1);
+            }
+            write(file_to_print, string, strlen(string));
             write(fd_in[1], &prt, 1);
+            write(fd_in[1], &sumbol, 1);
+            i = strlen(string) - 1;
+            write(fd_in[1], &i, 1);
+            write(fd_in[1], string, i);
         }
     }
     close(fd_in[0]);
