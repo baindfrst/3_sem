@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 //S H E L L
 #include <stdio.h>
 #include <stdlib.h>
@@ -351,3 +352,13 @@ void chek_str_and_count_com (char* str, int A[2])
     A[1] = count;
     return;
 }
+=======
+#include <stdio.h>
+
+int main()
+{
+    int a = 1;
+    int b = 10;
+    printf("%d", !a?b:1);
+}
+>>>>>>> 1c09b09 (to mergen)

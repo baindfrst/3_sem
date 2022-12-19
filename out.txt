@@ -1,4 +1,12 @@
+<<<<<<< HEAD
 a
 sd
 dsa
 dsas
+=======
+a aaaaa
+aaaaa a
+aaaaaaaaaa
+aaac asd
+fasdw qwe 
+>>>>>>> 1c09b09 (to mergen)
