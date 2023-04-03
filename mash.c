@@ -3,23 +3,34 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-
-int main(int argc, char **argv)
+#include <signal.h>
+int sg1 = 0;
+int sg2 = 0;
+void worker(int sig)
 {
-
- int fd[2];
- pipe(fd);
- if(fork()== 0) 
+    if(sig == SIGUSR1)
     {
-        dup2(fd[1],1);
-        close(fd[1]);
-        close(fd[0]);
-        execlp(�print�,�print�,0);
+        sg1 += 1;
     }
-    dup2(fd[0],0);
-    close(fd[0]);
-    close(fd[1]);
-    execl(�/usr/bin/wc�,�wc�,0);
+    else
+    {
+        if (sig == SIGUSR2)
+        {
+            sg2 += 1;
+        }
+    }
+}
+
+int main()
+{
+    signal(SIGUSR1, worker);
+    signal(SIGUSR2, worker);
+    raise(SIGUSR1);
+    raise(SIGUSR2);
+    raise(SIGUSR1);
+    raise(SIGUSR2);
+    raise(SIGUSR1);
+    raise(SIGUSR2);
+    raise(SIGUSR1);
+    printf("%d %d \n", sg1, sg2);
 }
